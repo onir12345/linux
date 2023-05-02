@@ -1,0 +1,70 @@
+How To Add Sudo User and Permissions in Linux
+By: scriptcrunch
+Sudo user in Linux will have permissions similar to a root user. With full sudo privileges, a user will be able to perform any operations on the Linux system.
+
+It is very important to categorize a user as a sudo user based on the use case.
+
+In this guide, we will look in to the following.
+
+Create a new Linux user
+Adding full sudo privileges to a user
+Adding sudo privileges for specific command execution.
+Create a new Linux user
+Step 1: Login to your server as root.
+
+Step 2: Create a user using useradd command. Replace username with your custom user.
+
+sudo adduser username
+Step 3: Set a password for the user.
+
+sudo passwd username
+You will be prompted for updating the new password. Enter the required password.
+
+Changing password for user jenkins.
+New password:
+Retype new password:
+passwd: all authentication tokens updated successfully.
+Add sudo Privileges to a User
+Now lets make our new user or an exiting user a sudo user.
+
+Step1: Add the user to wheel group.
+
+usermod -aG wheel username
+Note: If a user is part of wheel group, he can run any command as a super user.
+
+Step 2: Execute visudo command to open /etc/sudoers file.
+
+visudo
+Step 3: Make sure the following line is uncommented in the file.
+
+%wheel  ALL=(ALL)       ALL
+By default, even if a user is part of wheel group, you need to provide the password every time you run a command as sudo. If you need password less sudo access, you need uncomment the following where it has NOPASSWD and save the file using ESC + w + q + !
+
+%wheel  ALL=(ALL)       NOPASSWD: ALL
+Step 4: Now lets test the sudo user by logging in as the user.
+
+su username
+Now, try running sudo commands. It should work based on your password preferences (with or without password) you set for wheel group.
+
+Adding sudo privileges for specific command execution.
+There are scenarios where you might want only specific commands to be run a sudo privileges for a specific user. Lets see how we can achieve it.
+
+You can group the set of commands to be run under Cmnd_Alias
+
+For example, if you open the /etc/sudoers file, you can find the following aliases.
+
+## Command Aliases
+## These are groups of related commands...
+
+## Networking
+# Cmnd_Alias NETWORKING = /sbin/route, /sbin/ifconfig, /bin/ping, /sbin/dhclient, /usr/bin/net, /sbin/iptables, /usr/bin/rfcomm, /usr/bin/wvdial, /sbin/iwconfig, /sbin/mii-tool
+
+## Installation and management of software
+# Cmnd_Alias SOFTWARE = /bin/rpm, /usr/bin/up2date, /usr/bin/yum
+
+## Services
+Cmnd_Alias SERVICES = /sbin/service, /sbin/chkconfig, /usr/bin/systemctl start, /usr/bin/systemctl stop, /usr/bin/systemctl reload, /usr/bin/systemctl restart, /usr/bin/systemctl status, /usr/bin/systemctl enable, /usr/bin/systemctl disable
+Lets say, you want a user to have only permissions to run commands under the SERVICES alias, you need to have the following entry in the /etc/sudoers file
+
+username            ALL = SERVICES 
+Note: You can have custom commands in aliases the you create under Cmnd_Alias
